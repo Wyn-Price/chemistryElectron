@@ -9,7 +9,7 @@ import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+add
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -178,10 +178,24 @@ class Atom
 	public String getCompStruc()
 	{
 		String st = "";
-		String spacing = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ";
+		boolean isDot = false;
 		for(Shell s : shells)
-			st += "<u>Shell " + s.getPosition() + "</u>: " + s.all() + ", " + (s.getPosition() % 3 == 2? "<br>" : spacing);
+		{
+			if(s.s == 2 && s.p == 6 && s.d == 10 && s.f == 14)
+			{
+				if(!isDot)
+					st += "<u> Shells " + s.getPosition() + " - ";
+				isDot = true;
+			}
+			else
+			{
+				if(isDot)
+					st +=  (s.getPosition() - 1) + "</u>: " + shells.get(s.getPosition()-1).all() + "<br>";
+				isDot = false;
+				st += "<u>Shell " + s.getPosition() + "</u>: " + s.all() + "<br>";
+			}
 
+		}
 		return st;
 	}
 	

@@ -8,8 +8,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-add
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,16 +28,17 @@ public class Main {
 	private static JLabel outputText;
 	private static JFrame frame;
 	private static String fText = "";
+	private static JButton button;
 	
 	
 	private static void createGui()
 	{
-		frame = new JFrame("Enter Atomic Number");
+		frame = new JFrame("Enter Number");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		textInput = new JTextField();
 		outputText = new JLabel("", SwingConstants.CENTER);
 		String spacing = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ";
-		JButton button = new JButton("<html>" + spacing + "Click to submit<br>Shift + Click for infomation per shell</html>");
+		button = new JButton("<html>" + spacing + "Click to submit<br>Shift + Click for infomation per shell</html>");
 		JPanel panel = new JPanel();
 		
 		frame.add(textInput);
@@ -72,7 +72,8 @@ public class Main {
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				outputText.setSize(frame.getSize());
+				outputText.setSize(new Dimension(frame.getSize().width - 50, frame.getSize().height));
+				outputText.setLocation(25, 0);
 				button.setLocation(frame.getSize().width / 2 - 125, frame.getSize().height - 90);
 				resizeTest();
 			}
@@ -109,12 +110,12 @@ public class Main {
 		String st = "";
 		int num = fText.startsWith("s") ? 3 : 25;
 		long n = Math.round(frame.getSize().getWidth() / num);
-		List<String> splitString =  Arrays.asList(fText.split(", "));
-		if(splitString.size() > n)
-			for(int i = 0; i < splitString.size(); i++)
-				if(i == splitString.size()-1) st += splitString.get(i);
-				else if(i % n != 0) st += splitString.get(i) + ", ";
-				else st += splitString.get(i) + ",<br>";
+		String[] splitString =  fText.split(", ");
+		if(splitString.length > n)
+			for(int i = 0; i < splitString.length; i++)
+				if(i == splitString.length-1) st += splitString[i];
+				else if(i % n != 0) st += splitString[i] + ", ";
+				else st += splitString[i] + ",<br>";
 		else st = fText;
 		outputText.setText("<html>" + st + "</html>");
 	}
@@ -126,17 +127,26 @@ class Atom
 	private int e;
 	public Atom(int totalElectrons)
 	{
-		
-		ArrayList<Integer> j = new ArrayList<Integer>(Arrays.asList(1,3,11,19,37,44,87,119));
+		shellNoticableChange.clear();
+		shellNoticableChange.add(14);
+		k = 0;
+		ArrayList<Integer> j = new ArrayList<Integer>();
+		int[] p = {1,3,11,19,37,55,87,119};
+		for (int l : p)
+			j.add(l);
 		boolean extendListDone = false;
+		int s = 14;
+		int o = 0;
 		while(!extendListDone)
-		{
 			if(totalElectrons >= j.get(j.size()-1))
-				j.add(32 + j.get(j.size()-1));
+			{
+				if(o % 2 == 1)
+					s += 4;
+				j.add(s + j.get(j.size()-1));
+				o++;
+			}
 			else
 				extendListDone = true;
-		}
-			
 		for(int i = 0; i < j.size(); i ++)
 		{
 			if(totalElectrons >= j.get(i))
@@ -157,6 +167,8 @@ class Atom
 				{
 					addD(i, 1);
 					addF(i-1, 14);
+					if(shells.get(i - 2).getMax() >= 14)
+						createCustomShells(shells.get(i - 2));
 					addD(i, 13);
 				}
 				else
@@ -164,9 +176,46 @@ class Atom
 			}
 		}
 		
+		ArrayList<Shell> finishShell = new ArrayList<Shell>();
+		for(Shell shell : shells)
+			if(shell.getAdded() != 0)
+				finishShell.add(shell);
+		shells = finishShell;
 		
 	}
 	
+	private void createCustomShells(Shell shell) 
+	{
+		int k = ((shell.getMax() - 2) / 4) - 4;
+		for(int j = 0; shell.customSubs.size() < k; j++)
+			shell.createNewSub((j * 4) + 18);
+		
+		addToCustomShell(shell, shell.getMax());
+	}
+	
+	private ArrayList<Integer> shellNoticableChange = new ArrayList<Integer>();
+	int k = 0;
+	
+	private void addToCustomShell(Shell shell, int amount)
+	{
+		k++;
+		if(shellNoticableChange.get(shellNoticableChange.size()-1) < amount)
+			shellNoticableChange.add(amount);
+		for(int i = 0; i < k; i++)
+		{
+			if(shells.get(shell.getPosition() - i).getMax() > shellNoticableChange.get(i))
+			{
+				int n;
+				if(e <= shellNoticableChange.get(i))
+					n = e;
+				else
+					n = shellNoticableChange.get(i);
+				e -=shells.get(shell.getPosition() - i).addCustomSub(i, n);
+			}
+				
+		}	
+	}
+
 	public String getNormStruc()
 	{
 		String st = "";
@@ -178,22 +227,9 @@ class Atom
 	public String getCompStruc()
 	{
 		String st = "";
-		boolean isDot = false;
 		for(Shell s : shells)
 		{
-			if(s.s == 2 && s.p == 6 && s.d == 10 && s.f == 14)
-			{
-				if(!isDot)
-					st += "<u> Shells " + s.getPosition() + " - ";
-				isDot = true;
-			}
-			else
-			{
-				if(isDot)
-					st +=  (s.getPosition() - 1) + "</u>: " + shells.get(s.getPosition()-1).all() + "<br>";
-				isDot = false;
-				st += "<u>Shell " + s.getPosition() + "</u>: " + s.all() + "<br>";
-			}
+			st+= "<u>Shell " + s.getPosition() + "</u>: " + s.all() + "<br>";
 
 		}
 		return st;
@@ -239,10 +275,29 @@ class Shell
 {
 	private final int shellPosition;
 	public int s=0, p=0, d=0, f=0;
+	public static ArrayList<Shell> allShells = new ArrayList<Shell>();
+	public ArrayList<Integer> customSubs = new ArrayList<Integer>();
+	public ArrayList<Integer> customSubHolding = new ArrayList<Integer>();
+
+	
+	public int getMax()
+	{
+		return 2 + (shellPosition * 4);
+	}
+	
+	public int getAdded()
+	{
+		int i = s + p + d + f;
+		for(int j : customSubHolding)
+			i += j;
+		return i;
+	}
 	
 	public Shell(int shellPosition)
 	{
 		this.shellPosition = shellPosition;
+		allShells.add(this);
+		
 	}
 	
 	public int getPosition()
@@ -252,12 +307,62 @@ class Shell
 	
 	public String all()
 	{
-		return "s: " + s + "&nbsp p: " + p + "&nbsp d: " + d + "&nbsp f: " + f;
+		ArrayList<String> fAl = new ArrayList<String>(Arrays.asList("abcdefghijklmnopqrstuvwxyz".split("")));
+		ArrayList<String> alphabet = new ArrayList<String>(Arrays.asList("abceghijklmnoqrtuvwxyz".split("")));
+		String preffix = "";
+		String suffix = "";
+		int o = 0;
+		char[] m = "spdf".toCharArray();
+		int[]sf = {s,f,p,d};
+		for(int i = 0; i < sf.length; i++)
+		{
+			if(sf[i] == 0)
+				continue;
+			if(i==0)
+				suffix += "s: " + sf[0];
+			else
+				suffix += ",&nbsp " + m[i] + ": " + sf[i];
+		}
+		for(int i = 0; i < customSubHolding.size(); i ++)
+		{
+			if(customSubHolding.get(i) == 0)
+				continue;
+			try
+			{
+				preffix += ",&nbsp "  + alphabet.get(i) + ": " + customSubHolding.get(i);
+			}
+			catch (IndexOutOfBoundsException e) {
+				o++;
+				ArrayList<String> w = new ArrayList<String>();
+				for(int l = 0; l < alphabet.size(); l++)
+					w.add(String.valueOf(fAl.get(l) + o));
+				for(String s : w)
+					alphabet.add(s);
+				preffix += ",&nbsp "  + alphabet.get(i) + ": " + customSubHolding.get(i);
+			}
+		}
+			
+		
+		return suffix + preffix;
 	}
 	
 	public String addAll()
 	{
-		return String.valueOf(s+p+d+f);
+		return String.valueOf(getAdded());
+	}
+	
+	public void createNewSub(int initialLimit)
+	{
+		customSubs.add(initialLimit);
+	}
+	
+	public int addCustomSub(int positionNumber, int amount)
+	{
+		while(customSubHolding.size() < positionNumber + 1)
+			customSubHolding.add(0);
+		
+		customSubHolding.set(positionNumber, amount);
+		return amount;
 	}
 	
 	public int addS(int s)
@@ -313,4 +418,8 @@ class Shell
 		return shellPosition > 2;
 	}
 	
+	public static Shell getShell()
+	{
+		return null;
+	}
 }

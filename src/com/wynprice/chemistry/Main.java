@@ -33,7 +33,7 @@ public class Main {
 	
 	private static void createGui()
 	{
-		frame = new JFrame("Enter Number");
+		frame = new JFrame("Enter Atomic Number");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		textInput = new JTextField();
 		outputText = new JLabel("", SwingConstants.CENTER);

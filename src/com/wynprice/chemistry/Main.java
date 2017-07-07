@@ -1,13 +1,16 @@
 package com.wynprice.chemistry;
 
 import java.awt.Dimension;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,6 +25,7 @@ public class Main {
 	public static void main(String[] args)
 	{
 		createGui();
+		IsKeyPressed.main();
 	}
 	
 	private static JTextField textInput;
@@ -61,6 +65,7 @@ public class Main {
 		    	calc((e.getModifiers() & InputEvent.SHIFT_MASK) != 0);
 		    } 
 		});
+		
 		frame.addComponentListener(new ComponentListener() {
 			@Override
 			public void componentHidden(ComponentEvent e) {
@@ -85,7 +90,7 @@ public class Main {
 
 	}
 	
-	private static void calc(boolean isShift)
+	public static void calc(boolean isShift)
 	{
 		int electrons = 0;
 		try
@@ -128,7 +133,7 @@ class Atom
 	public Atom(int totalElectrons)
 	{
 		shellNoticableChange.clear();
-		shellNoticableChange.add(14);
+		shellNoticableChange.add(18);
 		k = 0;
 		ArrayList<Integer> j = new ArrayList<Integer>();
 		int[] p = {1,3,11,19,37,55,87,119};
@@ -167,8 +172,10 @@ class Atom
 				{
 					addD(i, 1);
 					addF(i-1, 14);
-					if(shells.get(i - 2).getMax() >= 14)
+					if(shells.get(i - 2).getMax() > 14)
 						createCustomShells(shells.get(i - 2));
+
+						
 					addD(i, 13);
 				}
 				else
@@ -282,7 +289,7 @@ class Shell
 	
 	public int getMax()
 	{
-		return 2 + (shellPosition * 4);
+		return 6 + (shellPosition * 4);
 	}
 	
 	public int getAdded()
@@ -307,13 +314,15 @@ class Shell
 	
 	public String all()
 	{
-		ArrayList<String> fAl = new ArrayList<String>(Arrays.asList("abcdefghijklmnopqrstuvwxyz".split("")));
-		ArrayList<String> alphabet = new ArrayList<String>(Arrays.asList("abceghijklmnoqrtuvwxyz".split("")));
+		ArrayList<String> fAl = new ArrayList<String>();
+		ArrayList<String> alphabet = new ArrayList<String>();
+		Collections.addAll(fAl, "abcdefghijklmnopqrstuvwxyz".split(""));
+		Collections.addAll(alphabet, "abceghijklmnoqrtuvwxyz".split(""));
 		String preffix = "";
 		String suffix = "";
 		int o = 0;
 		char[] m = "spdf".toCharArray();
-		int[]sf = {s,f,p,d};
+		int[]sf = {s,p,d,f};
 		for(int i = 0; i < sf.length; i++)
 		{
 			if(sf[i] == 0)
@@ -334,8 +343,8 @@ class Shell
 			catch (IndexOutOfBoundsException e) {
 				o++;
 				ArrayList<String> w = new ArrayList<String>();
-				for(int l = 0; l < alphabet.size(); l++)
-					w.add(String.valueOf(fAl.get(l) + o));
+				for(int l = 0; l < fAl.size(); l++)
+					w.add(String.valueOf(fAl.get(l)) + o);
 				for(String s : w)
 					alphabet.add(s);
 				preffix += ",&nbsp "  + alphabet.get(i) + ": " + customSubHolding.get(i);
@@ -417,9 +426,34 @@ class Shell
 	{
 		return shellPosition > 2;
 	}
-	
-	public static Shell getShell()
-	{
-		return null;
-	}
+}
+
+class IsKeyPressed {
+    private static volatile boolean Shift = false;
+
+    public static void main() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent ke) {
+                synchronized (IsKeyPressed.class) {
+                    switch (ke.getID()) {
+                    case KeyEvent.KEY_PRESSED:
+                    	if(ke.getKeyCode() == KeyEvent.VK_SHIFT)
+                    		Shift = true;
+                        if (ke.getKeyCode() == KeyEvent.VK_ENTER) 
+                        	Main.calc(Shift);
+                        break;
+
+                    case KeyEvent.KEY_RELEASED:
+                        if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
+                        	Shift = false;
+                        }
+                        break;
+                    }
+                    return false;
+                }
+            }
+        });
+    }
 }

@@ -170,13 +170,12 @@ class Atom
 			{
 				if(prev.hasF())
 				{
-					addD(i, 1);
+					addD(i, 13);
 					addF(i-1, 14);
 					if(shells.get(i - 2).getMax() > 14)
 						createCustomShells(shells.get(i - 2));
 
 						
-					addD(i, 13);
 				}
 				else
 					addD(i, 10);

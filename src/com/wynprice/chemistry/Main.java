@@ -35,24 +35,46 @@ public class Main extends JFrame
 	public Main()
 	{
 		super("Enter Atomic Number");
+		main = this;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public static Main getMain()
+	{
+		return main;
 	}
 	
 	public static ArrayList<Integer> sizes = new ArrayList<Integer>();
 	public static ArrayList<Integer> electrons = new ArrayList<Integer>();
+	public static Main main;
 	
-	public void repaint(int position, int electrons)
+	public static void repaint(int position, int ele)
 	{
-		sizes.add(position * 10);
-		this.electrons.add(electrons);
+		sizes.add((position + 1) * 60);
+		electrons.add(ele);
 	}
 	
 	 @Override
 	public void paint(Graphics g) {
+		 if(sizes.isEmpty())
+			 return;
 		 g.setColor(Color.BLACK);
-		 g.drawOval(20, 50, 100, 100);
+		 for(int i = 0; i < sizes.size(); i++)
+		 {
+			 g.drawOval(300 - (sizes.get(i) / 2), 300 - (sizes.get(i) / 2), sizes.get(i), sizes.get(i));
+			 for(int j : electrons)
+				 for(int k = 0; k < j; k++)
+				 {
+					 double angle = (((Math.PI*2) / j) * k);
+					 System.out.println(j);
+					 g.fillOval(300 + (int)Math.floor((Math.cos(angle) * 40)), 300 +  (int) Math.floor((Math.sin(angle) * 40)), 7, 7);
+				 }
+				 
+		 }
+			 
 		 sizes.clear();
 		 electrons.clear();
+		 sizes.add(60);
 	}
 	
 	private static JTextField textInput;
@@ -252,7 +274,12 @@ class Atom
 	{
 		String st = "";
 		for(Shell s : shells)
+		{
 			st+= s.addAll() + ", ";
+			Main.repaint(s.getPosition(), Integer.parseInt(s.addAll()));
+		}
+		Main.getMain().repaint();
+		
 		return st.substring(0, st.length() - 2);
 	}
 	

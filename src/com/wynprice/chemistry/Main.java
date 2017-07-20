@@ -56,7 +56,7 @@ public class Main extends JFrame
 		electrons.add(ele);
 	}
 	
-	static ArrayList<Color> colors = new ArrayList<Color>(Arrays.asList(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE, Color.PINK));
+	public static ArrayList<Color> colors = new ArrayList<Color>(Arrays.asList(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE, Color.PINK));
 
 	 @Override
 	public void paint(Graphics g) {
@@ -93,7 +93,7 @@ public class Main extends JFrame
 		 electrons.clear();
 		 sizes.add(60);
 		 electrons.add(0);
-	}
+	 }
 	 
 	public void createElectronText(int position, int electrons)
 	{
@@ -178,7 +178,7 @@ public class Main extends JFrame
 			outputText.setText("<html>Error: '" + textInput.getText() + "' is not a number</html>");
 			return;
 		}
-		fText = new Atom(electrons).paintStructure().getCompStruc();
+		fText = new Atom(electrons).structure();
 		resizeTest();
 	}
 	
@@ -294,7 +294,7 @@ class Atom
 		}	
 	}
 
-	public Atom paintStructure()
+	public String structure()
 	{
 		for(Shell s : shells)
 		{
@@ -302,14 +302,18 @@ class Atom
 			Main.repaint(s.getPosition(), Integer.parseInt(s.addAll()));
 		}
 		Main.getMain().repaint();		
-		return this;
+		return getCompStruc();
 	}
 	
 	public String getCompStruc()
 	{
 		String st = "";
 		for(Shell s : shells)
+		{
 			st+= "<u>Shell " + s.getPosition() + "</u>: " + s.all() + "<br>";
+			if(s.all().equals("System Error Code 1. Num was too long for immidiate calculation. Switching mode<br> just try again"))
+				return "System Error Code 1. Num was too long for immidiate calculation. Switching mode<br> just try again";
+		}
 		return st;
 	}
 	
@@ -418,7 +422,13 @@ class Shell
 					w.add(String.valueOf(fAl.get(l)) + o);
 				for(String s : w)
 					alphabet.add(s);
-				preffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i + 4).getRGB()).substring(2) + "'>" + alphabet.get(i) + ": " + customSubHolding.get(i) + "</font>";
+				try
+				{
+					preffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i + 4).getRGB()).substring(2) + "'>" + alphabet.get(i) + ": " + customSubHolding.get(i) + "</font>";
+				}
+				catch (IndexOutOfBoundsException ex) {
+					return "System Error Code 1. Num was too long for immidiate calculation. Switching mode<br> just try again";
+				}
 			}
 		}
 			

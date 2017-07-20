@@ -68,6 +68,7 @@ public class Main extends JFrame
 			 g.setColor(Color.BLACK);
 			 ArrayList<Integer> colorChanges = new ArrayList<Integer>();
 			 colorChanges.add(2);
+			 colorChanges.add(8);
 			 g.drawOval(300 - (sizes.get(i) / 2), 300 - (sizes.get(i) / 2), sizes.get(i), sizes.get(i));
 			 int l = 0;
 			 for(int k = 0; k < electrons.get(i); k++)
@@ -77,7 +78,7 @@ public class Main extends JFrame
 				 if(k >= colorChanges.get(l))
 				 {
 					 l++;
-					 colorChanges.add(colorChanges.get(colorChanges.size() - 1) * 2 + 4);//TODO wrong
+					 colorChanges.add(colorChanges.get(colorChanges.size() - 1) + 6 + (l*4));
 					 if(l == colors.size())
 						 colors.add(new Color(new Random().nextFloat(), new Random().nextFloat(), new Random().nextFloat()));
 					 g.setColor(colors.get(l));
@@ -177,7 +178,6 @@ public class Main extends JFrame
 			outputText.setText("<html>Error: '" + textInput.getText() + "' is not a number</html>");
 			return;
 		}
-		
 		fText = new Atom(electrons).paintStructure().getCompStruc();
 		resizeTest();
 	}

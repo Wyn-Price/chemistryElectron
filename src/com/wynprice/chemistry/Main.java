@@ -9,10 +9,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -47,6 +48,7 @@ public class Main extends JFrame
 	public static ArrayList<Integer> sizes = new ArrayList<Integer>();
 	public static ArrayList<Integer> electrons = new ArrayList<Integer>();
 	public static Main main;
+	public static ArrayList<String> preString = new ArrayList<String>();
 	
 	public static void repaint(int position, int ele)
 	{
@@ -54,27 +56,50 @@ public class Main extends JFrame
 		electrons.add(ele);
 	}
 	
+	static ArrayList<Color> colors = new ArrayList<Color>(Arrays.asList(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE, Color.PINK));
+
 	 @Override
 	public void paint(Graphics g) {
+		 super.paint(g);
 		 if(sizes.isEmpty())
 			 return;
-		 g.setColor(Color.BLACK);
 		 for(int i = 0; i < sizes.size(); i++)
 		 {
+			 g.setColor(Color.BLACK);
+			 ArrayList<Integer> colorChanges = new ArrayList<Integer>();
+			 colorChanges.add(2);
 			 g.drawOval(300 - (sizes.get(i) / 2), 300 - (sizes.get(i) / 2), sizes.get(i), sizes.get(i));
-			 for(int j : electrons)
-				 for(int k = 0; k < j; k++)
+			 int l = 0;
+			 for(int k = 0; k < electrons.get(i); k++)
+			 {
+				 if(l == 0)
+					 g.setColor(Color.RED);
+				 if(k >= colorChanges.get(l))
 				 {
-					 double angle = (((Math.PI*2) / j) * k);
-					 System.out.println(j);
-					 g.fillOval(300 + (int)Math.floor((Math.cos(angle) * 40)), 300 +  (int) Math.floor((Math.sin(angle) * 40)), 7, 7);
+					 l++;
+					 colorChanges.add(colorChanges.get(colorChanges.size() - 1) * 2 + 4);//TODO wrong
+					 if(l == colors.size())
+						 colors.add(new Color(new Random().nextFloat(), new Random().nextFloat(), new Random().nextFloat()));
+					 g.setColor(colors.get(l));
 				 }
+				 g.fillOval((int) Math.floor(sizes.get(i) / 2 * Math.cos(((Math.PI*2) / electrons.get(i)) * k) + 297.5d), 
+						 (int) Math.floor(sizes.get(i) / 2 * Math.sin(((Math.PI*2) / electrons.get(i)) * k) + 297.5d), 7, 7);
+			 }
 				 
 		 }
 			 
 		 sizes.clear();
 		 electrons.clear();
 		 sizes.add(60);
+		 electrons.add(0);
+	}
+	 
+	public void createElectronText(int position, int electrons)
+	{
+		JLabel lab = new JLabel(String.valueOf(electrons));
+		lab.setLocation(325, 270);
+		frame.add(lab);
+
 	}
 	
 	private static JTextField textInput;
@@ -89,28 +114,25 @@ public class Main extends JFrame
 		frame = new Main();
 		textInput = new JTextField();
 		outputText = new JLabel("", SwingConstants.CENTER);
-		String spacing = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ";
-		button = new JButton("<html>" + spacing + "Click to submit<br>Shift + Click for infomation per shell</html>");
+		button = new JButton("<html>Click to submit</html>");
 		JPanel panel = new JPanel();
 		
 		frame.add(textInput);
-		frame.add(button);
-		frame.pack();
 		frame.add(outputText);
+		frame.add(button);
 		frame.setVisible(true);
-		
+		frame.pack();
 		panel.add(textInput);
 		frame.add(panel);
 
-		frame.setSize(new Dimension(900, 600));
+		frame.setSize(new Dimension(1200, 600));
 		textInput.setPreferredSize(new Dimension(100, 30));
 		
-		outputText.setBackground(UIManager.getColor ( "Panel.background" ));
-		
+		outputText.setBackground(UIManager.getColor("Panel.background"));
 		
 		button.addActionListener(new ActionListener() { 
 		    public void actionPerformed(ActionEvent e) { 
-		    	calc((e.getModifiers() & InputEvent.SHIFT_MASK) != 0);
+		    	calc();
 		    } 
 		});
 		
@@ -125,9 +147,10 @@ public class Main extends JFrame
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				outputText.setSize(new Dimension(frame.getSize().width - 50, frame.getSize().height));
+				outputText.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
 				outputText.setLocation(25, 0);
-				button.setLocation(frame.getSize().width / 2 - 125, frame.getSize().height - 90);
+				button.setLocation(frame.getSize().width / 2 - 75, frame.getSize().height - 90);
+				button.setSize(150,50);
 				resizeTest();
 			}
 
@@ -138,7 +161,7 @@ public class Main extends JFrame
 
 	}
 	
-	public static void calc(boolean isShift)
+	public static void calc()
 	{
 		int electrons = 0;
 		try
@@ -154,7 +177,8 @@ public class Main extends JFrame
 			outputText.setText("<html>Error: '" + textInput.getText() + "' is not a number</html>");
 			return;
 		}
-		fText = isShift ? new Atom(electrons).getCompStruc() : new Atom(electrons).getNormStruc();
+		
+		fText = new Atom(electrons).paintStructure().getCompStruc();
 		resizeTest();
 	}
 	
@@ -270,27 +294,22 @@ class Atom
 		}	
 	}
 
-	public String getNormStruc()
+	public Atom paintStructure()
 	{
-		String st = "";
 		for(Shell s : shells)
 		{
-			st+= s.addAll() + ", ";
+			Main.getMain().createElectronText(s.getPosition(), s.getAdded());
 			Main.repaint(s.getPosition(), Integer.parseInt(s.addAll()));
 		}
-		Main.getMain().repaint();
-		
-		return st.substring(0, st.length() - 2);
+		Main.getMain().repaint();		
+		return this;
 	}
 	
 	public String getCompStruc()
 	{
 		String st = "";
 		for(Shell s : shells)
-		{
 			st+= "<u>Shell " + s.getPosition() + "</u>: " + s.all() + "<br>";
-
-		}
 		return st;
 	}
 	
@@ -380,9 +399,9 @@ class Shell
 			if(sf[i] == 0)
 				continue;
 			if(i==0)
-				suffix += "s: " + sf[0];
+				suffix += "<font color='#" +Integer.toHexString(Main.colors.get(i).getRGB()).substring(2) + "'>s: " + sf[0] + "</font>";
 			else
-				suffix += ",&nbsp " + m[i] + ": " + sf[i];
+				suffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i).getRGB()).substring(2) + "'>" + m[i] + ": " + sf[i] + "</font>";
 		}
 		for(int i = 0; i < customSubHolding.size(); i ++)
 		{
@@ -390,7 +409,7 @@ class Shell
 				continue;
 			try
 			{
-				preffix += ",&nbsp "  + alphabet.get(i) + ": " + customSubHolding.get(i);
+				preffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i + 4).getRGB()).substring(2) + "'>" + alphabet.get(i) + ": " + customSubHolding.get(i) + "</font>";
 			}
 			catch (IndexOutOfBoundsException e) {
 				o++;
@@ -399,7 +418,7 @@ class Shell
 					w.add(String.valueOf(fAl.get(l)) + o);
 				for(String s : w)
 					alphabet.add(s);
-				preffix += ",&nbsp "  + alphabet.get(i) + ": " + customSubHolding.get(i);
+				preffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i + 4).getRGB()).substring(2) + "'>" + alphabet.get(i) + ": " + customSubHolding.get(i) + "</font>";
 			}
 		}
 			
@@ -481,8 +500,6 @@ class Shell
 }
 
 class IsKeyPressed {
-    private static volatile boolean Shift = false;
-
     public static void main() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 
@@ -491,16 +508,8 @@ class IsKeyPressed {
                 synchronized (IsKeyPressed.class) {
                     switch (ke.getID()) {
                     case KeyEvent.KEY_PRESSED:
-                    	if(ke.getKeyCode() == KeyEvent.VK_SHIFT)
-                    		Shift = true;
                         if (ke.getKeyCode() == KeyEvent.VK_ENTER) 
-                        	Main.calc(Shift);
-                        break;
-
-                    case KeyEvent.KEY_RELEASED:
-                        if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
-                        	Shift = false;
-                        }
+                        	Main.calc();
                         break;
                     }
                     return false;

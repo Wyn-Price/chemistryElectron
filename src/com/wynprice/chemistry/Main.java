@@ -13,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.JButton;
@@ -21,7 +22,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 
 @SuppressWarnings("serial")
 public class Main extends JFrame
@@ -56,8 +56,9 @@ public class Main extends JFrame
 		electrons.add(ele);
 	}
 	
-	public static ArrayList<Color> colors = new ArrayList<Color>(Arrays.asList(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE, Color.PINK));
-
+	public static ArrayList<Color> colors = new ArrayList<Color>(Arrays.asList(Color.RED, Color.ORANGE, new Color(0x1c681d), new Color(0x1813ad), Color.PINK));
+	
+	
 	 @Override
 	public void paint(Graphics g) {
 		 super.paint(g);
@@ -105,6 +106,7 @@ public class Main extends JFrame
 	
 	private static JTextField textInput;
 	private static JLabel outputText;
+	private static JLabel textPerShell;
 	private static Main frame;
 	private static String fText = "";
 	private static JButton button;
@@ -115,6 +117,7 @@ public class Main extends JFrame
 		frame = new Main();
 		textInput = new JTextField();
 		outputText = new JLabel("", SwingConstants.CENTER);
+		textPerShell = new JLabel("");
 		button = new JButton("<html>Click to submit</html>");
 		JPanel panel = new JPanel();
 		
@@ -122,15 +125,13 @@ public class Main extends JFrame
 		frame.add(outputText);
 		frame.add(button);
 		frame.setVisible(true);
+		frame.add(textPerShell);
 		frame.pack();
 		panel.add(textInput);
 		frame.add(panel);
 
 		frame.setSize(new Dimension(1200, 600));
 		textInput.setPreferredSize(new Dimension(100, 30));
-		
-		outputText.setBackground(UIManager.getColor("Panel.background"));
-		
 		button.addActionListener(new ActionListener() { 
 		    public void actionPerformed(ActionEvent e) { 
 		    	calc();
@@ -150,6 +151,8 @@ public class Main extends JFrame
 			public void componentResized(ComponentEvent e) {
 				outputText.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
 				outputText.setLocation(25, 0);
+				textPerShell.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
+				textPerShell.setLocation(325, -20);
 				button.setLocation(frame.getSize().width / 2 - 75, frame.getSize().height - 90);
 				button.setSize(150,50);
 				resizeTest();
@@ -161,6 +164,8 @@ public class Main extends JFrame
 		});
 
 	}
+	
+	private static List<Character> doubleCharacters = Arrays.asList('3','4','7','8','9','0');
 	
 	public static void calc()
 	{
@@ -179,6 +184,22 @@ public class Main extends JFrame
 			return;
 		}
 		fText = new Atom(electrons).structure();
+		String[] perShellRaw = fText.split("@")[1].split(" ");
+		String perShell = "<html>";
+		for(String s : perShellRaw)
+		{
+			perShell += " " + s;
+			for(int i = 0; i < 6; i++)
+				perShell += "&nbsp";
+			for(char c : s.toCharArray())
+				if(doubleCharacters.contains(c))
+					perShell = perShell.substring(0, perShell.length() - 5);
+			if(s.length() > 2)
+				for(int i = 0; i <= s.length() - 2; i++)
+					perShell = perShell.substring(0, perShell.length() - 10);
+		}
+		textPerShell.setText(perShell + "</html>"); 
+		fText = fText.split("@")[0];
 		resizeTest();
 	}
 	
@@ -224,6 +245,7 @@ class Atom
 			}
 			else
 				extendListDone = true;
+		
 		for(int i = 0; i < j.size(); i ++)
 		{
 			if(totalElectrons >= j.get(i))
@@ -241,16 +263,14 @@ class Atom
 			if(next.s == 2)
 			{
 				if(prev.hasF())
+					addF(i-1, 14);
+				addD(i, 10);
+				if(prev.hasF())
 				{
-					addD(i, 13);
 					addF(i-1, 14);
 					if(shells.get(i - 2).getMax() > 14)
 						createCustomShells(shells.get(i - 2));
-
-						
 				}
-				else
-					addD(i, 10);
 			}
 		}
 		
@@ -302,7 +322,15 @@ class Atom
 			Main.repaint(s.getPosition(), Integer.parseInt(s.addAll()));
 		}
 		Main.getMain().repaint();		
-		return getCompStruc();
+		return getCompStruc() + "@" + getAddedAll();
+	}
+	
+	public String getAddedAll()
+	{
+		String st = "";
+		for(Shell shell : shells)
+			st += shell.addAll() + " ";
+		return st.substring(0, st.length() - 1);
 	}
 	
 	public String getCompStruc()

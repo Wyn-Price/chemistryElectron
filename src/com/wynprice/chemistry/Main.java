@@ -40,11 +40,6 @@ public class Main extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-	public static Main getMain()
-	{
-		return main;
-	}
-	
 	public static ArrayList<Integer> sizes = new ArrayList<Integer>();
 	public static ArrayList<Integer> electrons = new ArrayList<Integer>();
 	public static Main main;
@@ -318,10 +313,10 @@ class Atom
 	{
 		for(Shell s : shells)
 		{
-			Main.getMain().createElectronText(s.getPosition(), s.getAdded());
+			Main.main.createElectronText(s.getPosition(), s.getAdded());
 			Main.repaint(s.getPosition(), Integer.parseInt(s.addAll()));
 		}
-		Main.getMain().repaint();		
+		Main.main.repaint();		
 		return getCompStruc() + "@" + getAddedAll();
 	}
 	

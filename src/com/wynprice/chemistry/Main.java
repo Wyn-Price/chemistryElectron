@@ -147,7 +147,8 @@ public class Main extends JFrame
 				outputText.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
 				outputText.setLocation(25, 0);
 				textPerShell.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
-				textPerShell.setLocation(325, -20);
+				System.out.println(frame.getSize().height / 30);
+				textPerShell.setLocation(325, (600 - frame.getSize().height) / 2 - 20);
 				button.setLocation(frame.getSize().width / 2 - 75, frame.getSize().height - 90);
 				button.setSize(150,50);
 				resizeTest();

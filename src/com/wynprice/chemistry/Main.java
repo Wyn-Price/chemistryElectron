@@ -65,7 +65,7 @@ public class Main extends JFrame
 			 ArrayList<Integer> colorChanges = new ArrayList<Integer>();
 			 colorChanges.add(2);
 			 colorChanges.add(8);
-			 g.drawOval(300 - (sizes.get(i) / 2), 300 - (sizes.get(i) / 2), sizes.get(i), sizes.get(i));
+			 g.drawOval((g.getClipBounds().width / 2) - 300 - (sizes.get(i) / 2), (g.getClipBounds().height / 2) - (sizes.get(i) / 2), sizes.get(i), sizes.get(i));
 			 int l = 0;
 			 for(int k = 0; k < electrons.get(i); k++)
 			 {
@@ -76,11 +76,11 @@ public class Main extends JFrame
 					 l++;
 					 colorChanges.add(colorChanges.get(colorChanges.size() - 1) + 6 + (l*4));
 					 if(l == colors.size())
-						 colors.add(new Color(new Random().nextFloat(), new Random().nextFloat(), new Random().nextFloat()));
+						 addNewColor();
 					 g.setColor(colors.get(l));
 				 }
-				 g.fillOval((int) Math.floor(sizes.get(i) / 2 * Math.cos(((Math.PI*2) / electrons.get(i)) * k) + 297.5d), 
-						 (int) Math.floor(sizes.get(i) / 2 * Math.sin(((Math.PI*2) / electrons.get(i)) * k) + 297.5d), 7, 7);
+				 g.fillOval((int) Math.floor(sizes.get(i) / 2 * Math.cos(((Math.PI*2) / electrons.get(i)) * k) + (g.getClipBounds().width / 2) - 302.5d), 
+						 (int) Math.floor(sizes.get(i) / 2 * Math.sin(((Math.PI*2) / electrons.get(i)) * k) +  (g.getClipBounds().height / 2d) - 2.5d), 7, 7);
 			 }
 				 
 		 }
@@ -91,14 +91,11 @@ public class Main extends JFrame
 		 electrons.add(0);
 	 }
 	 
-	public void createElectronText(int position, int electrons)
-	{
-		JLabel lab = new JLabel(String.valueOf(electrons));
-		lab.setLocation(325, 270);
-		frame.add(lab);
+	 public static void addNewColor()
+	 {
+		 colors.add(new Color(new Random().nextFloat(), new Random().nextFloat(), new Random().nextFloat()));
+	 }
 
-	}
-	
 	private static JTextField textInput;
 	private static JLabel outputText;
 	private static JLabel textPerShell;
@@ -111,7 +108,7 @@ public class Main extends JFrame
 	{
 		frame = new Main();
 		textInput = new JTextField();
-		outputText = new JLabel("", SwingConstants.CENTER);
+		outputText = new JLabel("", SwingConstants.RIGHT);
 		textPerShell = new JLabel("");
 		button = new JButton("<html>Click to submit</html>");
 		JPanel panel = new JPanel();
@@ -145,10 +142,9 @@ public class Main extends JFrame
 			@Override
 			public void componentResized(ComponentEvent e) {
 				outputText.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
-				outputText.setLocation(25, 0);
+				outputText.setLocation(-200, 0);
 				textPerShell.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
-				System.out.println(frame.getSize().height / 30);
-				textPerShell.setLocation(325, (600 - frame.getSize().height) / 2 - 20);
+				textPerShell.setLocation(frame.getWidth() / 2 - 270, -20);
 				button.setLocation(frame.getSize().width / 2 - 75, frame.getSize().height - 90);
 				button.setSize(150,50);
 				resizeTest();
@@ -313,10 +309,8 @@ class Atom
 	public String structure()
 	{
 		for(Shell s : shells)
-		{
-			Main.main.createElectronText(s.getPosition(), s.getAdded());
 			Main.repaint(s.getPosition(), Integer.parseInt(s.addAll()));
-		}
+
 		Main.main.repaint();		
 		return getCompStruc() + "@" + getAddedAll();
 	}
@@ -333,11 +327,7 @@ class Atom
 	{
 		String st = "";
 		for(Shell s : shells)
-		{
 			st+= "<u>Shell " + s.getPosition() + "</u>: " + s.all() + "<br>";
-			if(s.all().equals("System Error Code 1. Num was too long for immidiate calculation. Switching mode<br> just try again"))
-				return "System Error Code 1. Num was too long for immidiate calculation. Switching mode<br> just try again";
-		}
 		return st;
 	}
 	
@@ -435,25 +425,18 @@ class Shell
 		{
 			if(customSubHolding.get(i) == 0)
 				continue;
-			try
+			if(alphabet.size() == i)
 			{
-				preffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i + 4).getRGB()).substring(2) + "'>" + alphabet.get(i) + ": " + customSubHolding.get(i) + "</font>";
-			}
-			catch (IndexOutOfBoundsException e) {
 				o++;
 				ArrayList<String> w = new ArrayList<String>();
 				for(int l = 0; l < fAl.size(); l++)
 					w.add(String.valueOf(fAl.get(l)) + o);
 				for(String s : w)
 					alphabet.add(s);
-				try
-				{
-					preffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i + 4).getRGB()).substring(2) + "'>" + alphabet.get(i) + ": " + customSubHolding.get(i) + "</font>";
-				}
-				catch (IndexOutOfBoundsException ex) {
-					return "System Error Code 1. Num was too long for immidiate calculation. Switching mode<br> just try again";
-				}
 			}
+			if(Main.colors.size() == i + 4)
+				Main.addNewColor();
+			preffix += ",&nbsp<font color='#" +Integer.toHexString(Main.colors.get(i + 4).getRGB()).substring(2) + "'>" + alphabet.get(i) + ": " + customSubHolding.get(i) + "</font>";
 		}
 			
 		

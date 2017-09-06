@@ -11,9 +11,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 import javax.swing.JButton;
@@ -31,6 +29,13 @@ public class Main extends JFrame
 	{
 		createGui();
 		IsKeyPressed.main();
+
+		for(Color color : preColors)
+			colors.add(color);
+		for(String s : elementNames)
+			elementNameArray.add(s);
+		for(String s : elementSymbols)
+			elementSymbolArray.add(s);
 	}
 	
 	public Main()
@@ -44,6 +49,29 @@ public class Main extends JFrame
 	public static ArrayList<Integer> electrons = new ArrayList<Integer>();
 	public static Main main;
 	public static ArrayList<String> preString = new ArrayList<String>();
+	private static String[] elementNames = {"hydrogen","helium","lithium","beryllium","boron","carbon","nitrogen",
+		"oxygen","fluorine","neon","sodium","magnesium","aluminum","silicon","phosphorus","sulfur","chlorine",
+		"argon","potassium","calcium","scandium","titanium","vanadium","chromium","manganese","iron","cobalt",
+		"nickel","copper","zinc","gallium","germanium","arsenic","selenium","bromine","krypton","rubidium",
+		"strontium","yttrium","zirconium","niobium","molybdenum","technetium","ruthenium","rhodium","palladium",
+		"silver","cadmium","indium","tin","antimony","tellurium","iodine","xenon","cesium","barium","lanthanum",
+		"cerium","praseodymium","neodymium","promethium","samarium","europium","gadolinium","terbium","dysprosium",
+		"holmium","erbium","thulium","ytterbium","lutetium","hafnium","tantalum","tungsten","rhenium","osmium",
+		"iridium","platinum","gold","mercury","thallium","lead","bismuth","polonium","astatine","radon","francium",
+		"radium","actinium","thorium","protactinium","uranium","neptunium","plutonium","americium","curium",
+		"berkelium","californium","einsteinium","fermium","mendelevium","nobelium","lawrencium","rutherfordium",
+		"dubnium","seaborgium","bohrium","hassium","meitnerium","darmstadtium","roentgenium","copernicium",
+		"nihonium","flerovium","moscovium","livermorium","tennessine","oganesson"};
+	private static ArrayList<String> elementNameArray = new ArrayList<>();
+	
+	private static String[] elementSymbols = {"h","he","li","be","b","c","n","o","f","ne","na","mg","al","si","p",
+		"s","cl","ar","k","ca","sc","ti","v","cr","mn","fe","co","ni","cu","zn","ga","ge","as","se","br","kr","rb",
+		"sr","y","zr","nb","mo","tc","ru","rh","pd","ag","cd","in","sn","sb","te","i","xe","cs","ba","la","ce","pr",
+		"nd","pm","sm","eu","gd","tb","dy","ho","er","tm","yb","lu","hf","ta","w","re","os","ir","pt","au","hg","tl",
+		"pb","bi","po","at","rn","fr","ra","ac","th","pa","u","np","pu","am","cm","bk","cf","es","fm","md","no","lr",
+		"rf","db","sg","bh","hs","mt","ds","rg","cn","nh","fl","mc","lv","ts","og"};
+	private static ArrayList<String> elementSymbolArray = new ArrayList<>();
+
 	
 	public static void repaint(int position, int ele)
 	{
@@ -51,7 +79,9 @@ public class Main extends JFrame
 		electrons.add(ele);
 	}
 	
-	public static ArrayList<Color> colors = new ArrayList<Color>(Arrays.asList(Color.RED, Color.ORANGE, new Color(0x1c681d), new Color(0x1813ad), Color.PINK));
+	
+	private static Color[] preColors = {Color.RED, Color.ORANGE, new Color(0x1c681d), new Color(0x1813ad), Color.PINK};
+	public static ArrayList<Color> colors = new ArrayList<Color>();
 	
 	
 	 @Override
@@ -91,9 +121,10 @@ public class Main extends JFrame
 		 electrons.add(0);
 	 }
 	 
+	 private static Random rand = new Random(45707867644L);
 	 public static void addNewColor()
 	 {
-		 colors.add(new Color(new Random().nextFloat(), new Random().nextFloat(), new Random().nextFloat()));
+		 colors.add(new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()));
 	 }
 
 	private static JTextField textInput;
@@ -129,17 +160,14 @@ public class Main extends JFrame
 		    	calc();
 		    } 
 		});
-		
 		frame.addComponentListener(new ComponentListener() {
-			@Override
+			
 			public void componentHidden(ComponentEvent e) {
 			}
 
-			@Override
 			public void componentMoved(ComponentEvent e) {				
 			}
 
-			@Override
 			public void componentResized(ComponentEvent e) {
 				outputText.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
 				outputText.setLocation(-200, 0);
@@ -150,26 +178,30 @@ public class Main extends JFrame
 				resizeTest();
 			}
 
-			@Override
 			public void componentShown(ComponentEvent e) {				
 			}
 		});
 
 	}
 	
-	private static List<Character> doubleCharacters = Arrays.asList('3','4','7','8','9','0');
+	private static char[] doubleCharacters = "347890".toCharArray();
 	
 	public static void calc()
 	{
 		int electrons = 0;
-		try
-		{
-			electrons = Integer.parseInt(textInput.getText());
-		}
-		catch (NumberFormatException e) {
-			outputText.setText("<html>Error: '" + textInput.getText() + "' is not a number</html>");
-			return;
-		}
+		if(elementNameArray.contains(textInput.getText().toLowerCase()))
+			electrons = elementNameArray.indexOf(textInput.getText().toLowerCase())+1;
+		else if(elementSymbolArray.contains(textInput.getText().toLowerCase()))
+			electrons = elementSymbolArray.indexOf(textInput.getText().toLowerCase())+1;
+		else
+			try
+			{
+				electrons = Integer.parseInt(textInput.getText());
+			}
+			catch (NumberFormatException e) {
+				outputText.setText("<html>Error: '" + textInput.getText() + "' is not a number</html>");
+				return;
+			}
 		if(electrons < 0 )
 		{
 			outputText.setText("<html>Error: '" + textInput.getText() + "' is not a number</html>");
@@ -178,13 +210,16 @@ public class Main extends JFrame
 		fText = new Atom(electrons).structure();
 		String[] perShellRaw = fText.split("@")[1].split(" ");
 		String perShell = "<html>";
+		ArrayList<Character> charList = new ArrayList<Character>();
+		for(char c : doubleCharacters)
+			charList.add(c);
 		for(String s : perShellRaw)
 		{
 			perShell += " " + s;
 			for(int i = 0; i < 6; i++)
 				perShell += "&nbsp";
 			for(char c : s.toCharArray())
-				if(doubleCharacters.contains(c))
+				if(charList.contains(c))
 					perShell = perShell.substring(0, perShell.length() - 5);
 			if(s.length() > 2)
 				for(int i = 0; i <= s.length() - 2; i++)
@@ -520,7 +555,6 @@ class IsKeyPressed {
     public static void main() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 
-            @Override
             public boolean dispatchKeyEvent(KeyEvent ke) {
                 synchronized (IsKeyPressed.class) {
                     switch (ke.getID()) {

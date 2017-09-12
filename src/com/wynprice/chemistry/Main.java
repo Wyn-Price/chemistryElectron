@@ -36,8 +36,11 @@ public class Main extends JFrame
 			elementNameArray.add(s);
 		for(String s : elementSymbols)
 			elementSymbolArray.add(s);
+<<<<<<< HEAD
 		for(double d : elementMass)
 			elementMassArray.add(d);
+=======
+>>>>>>> origin/master
 	}
 	
 	public Main()
@@ -47,6 +50,7 @@ public class Main extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
+	private static int zoomIndex = 10;
 	public static ArrayList<Integer> sizes = new ArrayList<Integer>();
 	public static ArrayList<Integer> electrons = new ArrayList<Integer>();
 	public static Main main;
@@ -74,6 +78,7 @@ public class Main extends JFrame
 		"rf","db","sg","bh","hs","mt","ds","rg","cn","nh","fl","mc","lv","ts","og"};
 	private static ArrayList<String> elementSymbolArray = new ArrayList<>();
 
+<<<<<<< HEAD
 	private static double[] elementMass = {1.00794D, 4.002602D, 6.941D, 9.012182D, 10.811D, 12.0107D, 14.00674D, 15.9994D,
 			18.9984032D, 20.1797D, 22.989770D, 24.3050D, 26.981538D, 28.0855D, 30.973761D, 32.066D, 35.4527D, 39.948D, 39.0983D,
 			40.078D, 44.955910D, 47.867D, 50.9415D, 51.9961D, 54.938049D, 55.845D, 58.933200D, 58.6934D, 63.546D, 65.39D, 69.723D,
@@ -86,9 +91,12 @@ public class Main extends JFrame
 			288D, 292D, 294D, 294D};
 	private static ArrayList<Double> elementMassArray = new ArrayList<>();
 
+=======
+	
+>>>>>>> origin/master
 	public static void repaint(int position, int ele)
 	{
-		sizes.add((position + 1) * 60);
+		sizes.add((int) ((position + 1) * (60 * (zoomIndex / 10D))));
 		electrons.add(ele);
 	}
 	
@@ -102,13 +110,13 @@ public class Main extends JFrame
 		 super.paint(g);
 		 if(sizes.isEmpty())
 			 return;
-		 for(int i = 0; i < sizes.size(); i++)
+		 for(int i = 1; i < sizes.size(); i++)
 		 {
 			 g.setColor(Color.BLACK);
 			 ArrayList<Integer> colorChanges = new ArrayList<Integer>();
 			 colorChanges.add(2);
 			 colorChanges.add(8);
-			 g.drawOval((g.getClipBounds().width / 2) - 300 - (sizes.get(i) / 2), (g.getClipBounds().height / 2) - (sizes.get(i) / 2), sizes.get(i), sizes.get(i));
+			 g.drawOval((g.getClipBounds().width / 2) - 300 - (sizes.get(i) / 2), (g.getClipBounds().height / 2) - (sizes.get(i) / 2), sizes.get(i) * 1, sizes.get(i) * 1);
 			 int l = 0;
 			 for(int k = 0; k < electrons.get(i); k++)
 			 {
@@ -202,6 +210,16 @@ public class Main extends JFrame
 
 	}
 	
+<<<<<<< HEAD
+=======
+	public static void zoom(boolean isIn)
+	{
+		zoomIndex += isIn ? -1 : 1;
+		if(zoomIndex < 1)
+			zoomIndex = 1;
+	}
+	
+>>>>>>> origin/master
 	private static char[] doubleCharacters = "347890".toCharArray();
 	
 	public static void calc()
@@ -220,7 +238,11 @@ public class Main extends JFrame
 				outputText.setText("<html>Error: '" + textInput.getText() + "' is not a number</html>");
 				return;
 			}
+<<<<<<< HEAD
 		if(electrons <= 0 )
+=======
+		if(electrons < 0 )
+>>>>>>> origin/master
 		{
 			outputText.setText("<html>Error: '" + textInput.getText() + "' is not an accepted number</html>");
 			return;
@@ -587,6 +609,8 @@ class IsKeyPressed {
                     case KeyEvent.KEY_PRESSED:
                         if (ke.getKeyCode() == KeyEvent.VK_ENTER) 
                         	Main.calc();
+                        if(ke.getKeyCode() == KeyEvent.VK_UP || ke.getKeyCode() == KeyEvent.VK_DOWN)
+                        	Main.zoom(ke.getKeyCode() == KeyEvent.VK_DOWN);
                         break;
                     }
                     return false;

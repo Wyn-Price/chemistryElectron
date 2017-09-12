@@ -110,6 +110,7 @@ public class Main extends JFrame
 			 colorChanges.add(2);
 			 colorChanges.add(8);
 			 g.drawOval((g.getClipBounds().width / 2) - 300 - (sizes.get(i) / 2), (g.getClipBounds().height / 2) - (sizes.get(i) / 2), sizes.get(i) * 1, sizes.get(i) * 1);
+			 g.drawString(perShellRaw[i - 1], (g.getClipBounds().width / 2) - 295 + (sizes.get(i) / 2), (g.getClipBounds().height / 2) + 15);
 			 int l = 0;
 			 for(int k = 0; k < electrons.get(i); k++)
 			 {
@@ -143,7 +144,6 @@ public class Main extends JFrame
 
 	private static JTextField textInput;
 	private static JLabel outputText;
-	private static JLabel textPerShell;
 	private static JLabel elementName;
 	private static Main frame;
 	private static String fText = "";
@@ -156,7 +156,6 @@ public class Main extends JFrame
 		textInput = new JTextField();
 		outputText = new JLabel("", SwingConstants.RIGHT);
 		elementName = new JLabel("", SwingConstants.CENTER);
-		textPerShell = new JLabel("");
 		button = new JButton("<html>Click to submit</html>");
 		JPanel panel = new JPanel();
 		
@@ -165,7 +164,6 @@ public class Main extends JFrame
 		frame.add(elementName);
 		frame.add(button);
 		frame.setVisible(true);
-		frame.add(textPerShell);
 		frame.pack();
 		panel.add(textInput);
 		frame.add(panel);
@@ -188,8 +186,6 @@ public class Main extends JFrame
 			public void componentResized(ComponentEvent e) {
 				outputText.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
 				outputText.setLocation(-200, 0);
-				textPerShell.setSize(new Dimension(frame.getSize().width + 100, frame.getSize().height));
-				textPerShell.setLocation(frame.getWidth() / 2 - 270, -20);
 				elementName.setSize(frame.getWidth(), 150);
 				elementName.setLocation(0, 120);
 				button.setLocation(frame.getSize().width / 2 - 75, frame.getSize().height - 90);
@@ -213,7 +209,7 @@ public class Main extends JFrame
 		Main.calc();
 	}
 	
-	private static char[] doubleCharacters = "347890".toCharArray();
+	private static String[] perShellRaw;
 	
 	public static void calc()
 	{
@@ -237,21 +233,7 @@ public class Main extends JFrame
 			return;
 		}
 		fText = new Atom(electrons).structure();
-		String[] perShellRaw = fText.split("@")[1].split(" ");
-		String perShell = "<html>";
-		ArrayList<Character> charList = new ArrayList<Character>();
-		for(char c : doubleCharacters)
-			charList.add(c);
-		for(String s : perShellRaw)
-		{
-			perShell += " " + s;
-			for(int i = 0; i < 6; i++)
-				perShell += "&nbsp";
-			for(char c : s.toCharArray())
-				if(charList.contains(c))
-					perShell = perShell.substring(0, perShell.length() - 5);
-		}
-		textPerShell.setText(perShell + "</html>"); 
+		perShellRaw = fText.split("@")[1].split(" ");
 		fText = fText.split("@")[0];
 		if(electrons - 1 < elementNameArray.size())
 			elementName.setText("<html><u><p align=\"center\">" + capatilizeFirstLetter(elementNameArray.get(electrons - 1)) + 
@@ -260,6 +242,9 @@ public class Main extends JFrame
 		else
 			elementName.setText("");
 		resizeTest();
+		
+		main.repaint();		
+
 	}
 		
 	private static String capatilizeFirstLetter(String name)
@@ -383,7 +368,6 @@ class Atom
 		for(Shell s : shells)
 			Main.repaint(s.getPosition(), Integer.parseInt(s.addAll()));
 
-		Main.main.repaint();		
 		return getCompStruc() + "@" + getAddedAll();
 	}
 	

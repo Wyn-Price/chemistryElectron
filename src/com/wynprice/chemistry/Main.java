@@ -47,7 +47,7 @@ public class Main extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-	private static int zoomIndex = 10;
+	private static int zoomIndex = 20;
 	public static ArrayList<Integer> sizes = new ArrayList<Integer>();
 	public static ArrayList<Integer> electrons = new ArrayList<Integer>();
 	public static Main main;
@@ -89,7 +89,7 @@ public class Main extends JFrame
 
 	public static void repaint(int position, int ele)
 	{
-		sizes.add((int) ((position + 1) * (60 * (zoomIndex / 10D))));
+		sizes.add((int) ((position + 1) * (60 * (zoomIndex / 20D))));
 		electrons.add(ele);
 	}
 	
@@ -110,7 +110,8 @@ public class Main extends JFrame
 			 colorChanges.add(2);
 			 colorChanges.add(8);
 			 g.drawOval((g.getClipBounds().width / 2) - 300 - (sizes.get(i) / 2), (g.getClipBounds().height / 2) - (sizes.get(i) / 2), sizes.get(i) * 1, sizes.get(i) * 1);
-			 g.drawString(perShellRaw[i - 1], (g.getClipBounds().width / 2) - 295 + (sizes.get(i) / 2), (g.getClipBounds().height / 2) + 15);
+			 if(perShellRaw.length >= i && zoomIndex > 5)
+				 g.drawString(perShellRaw[i - 1], (g.getClipBounds().width / 2) - 299 + (sizes.get(i) / 2), (g.getClipBounds().height / 2) + 15);
 			 int l = 0;
 			 for(int k = 0; k < electrons.get(i); k++)
 			 {
@@ -129,10 +130,9 @@ public class Main extends JFrame
 			 }
 				 
 		 }
-			 
 		 sizes.clear();
 		 electrons.clear();
-		 sizes.add(60);
+		 sizes.add((int) (60 * (zoomIndex / 20D)));
 		 electrons.add(0);
 	 }
 	 
@@ -191,6 +191,11 @@ public class Main extends JFrame
 				button.setLocation(frame.getSize().width / 2 - 75, frame.getSize().height - 90);
 				button.setSize(150,50);
 				resizeTest();
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e1) {
+					;
+				}
 				calc();
 			}
 

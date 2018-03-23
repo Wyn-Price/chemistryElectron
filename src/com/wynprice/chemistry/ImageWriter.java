@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import javax.imageio.ImageIO;
 
@@ -13,6 +12,10 @@ public class ImageWriter
 	private final BufferedImage bufferedImage;
 	private final Graphics2D graphics;
 	
+	private static final File BASE = new File("./images");
+	static {
+		BASE.mkdirs();
+	}
 	public ImageWriter(int xSize, int ySize) 
 	{
 		bufferedImage = new BufferedImage(xSize, ySize, BufferedImage.TYPE_INT_ARGB);
@@ -26,8 +29,8 @@ public class ImageWriter
 	public void build(String name)
 	{
 		try {
-			ImageIO.write(bufferedImage, "PNG", new File(new File(ImageWriter.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getAbsolutePath() + "\\images\\" + name + ".png"));
-		} catch (IOException | URISyntaxException e) {
+			ImageIO.write(bufferedImage, "PNG", new File(BASE, name + ".png"));
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
